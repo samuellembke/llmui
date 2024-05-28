@@ -5,6 +5,7 @@ import {ReactNode} from "react";
 export default async function ChatsProviderWrapper({children}: {children: ReactNode}) {
   const threads = await api.threads.getUsersThreads()
 
+  // TODO: Implement createThread function not as server function but as client side trpc call
   async function createThread() {
     "use server"
     return await api.threads.createThread({
