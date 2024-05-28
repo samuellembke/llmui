@@ -7,10 +7,12 @@ type userThread = typeof thread.$inferSelect;
 
 type State = {
   threads: userThread[];
+  activeThread: userThread | null;
 };
 
 const initialState: State = {
   threads: [],
+  activeThread: null,
 };
 
 export const ChatsContext = createContext<{
@@ -18,11 +20,13 @@ export const ChatsContext = createContext<{
   setThreads: (threads: userThread[]) => void;
   updateThreads: (threads: userThread[]) => void;
   createThread: () => Promise<userThread[]>;
+  setActiveThread: (thread: userThread) => void;
 }>({
   state: initialState,
   setThreads: () => {},
   updateThreads: () => {},
   createThread: async () => [],
+  setActiveThread: () => {},
 });
 
 export default function ChatsProvider({ children, fetchedThreads, createThread }: {
@@ -31,12 +35,18 @@ export default function ChatsProvider({ children, fetchedThreads, createThread }
   createThread: () => Promise<userThread[]>;
 }) {
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<State>({
     threads: fetchedThreads,
+    activeThread: null,
   });
 
   const setThreads = useCallback((threads: userThread[]) => {
-    setState({ threads });
+    setState(prevState => {
+      return {
+        threads,
+        activeThread: prevState.activeThread,
+      }
+    });
   }, [])
 
   const updateThreads = useCallback((threads: userThread[]) => {
@@ -51,31 +61,47 @@ export default function ChatsProvider({ children, fetchedThreads, createThread }
       }
     })
 
-    setState({ threads: oldThreads });
+    setState(prevState => {
+      return {
+        threads: oldThreads,
+        activeThread: prevState.activeThread,
+      }
+    });
   }, [state])
 
   const createNewThread = async () => {
     return await createThread();
   }
 
+  const setActiveThread = useCallback((thread: userThread) => {
+    setState(prevState => {
+      return {
+        threads: prevState.threads,
+        activeThread: thread,
+      }
+    });
+  }, [])
+
   useEffect(() => {
     // setState({ threads: fetchedThreads });
   }, [fetchedThreads])
 
   return (
-    <ChatsContext.Provider value={{ state, setThreads, updateThreads, createThread: createNewThread }}>
+    <ChatsContext.Provider value={{ state, setThreads, updateThreads, createThread: createNewThread, setActiveThread }}>
       {children}
     </ChatsContext.Provider>
   );
 }
 
 export const useChats = () => {
-  const { state, setThreads, updateThreads } = React.useContext(ChatsContext);
+  const { state, setThreads, updateThreads, setActiveThread } = React.useContext(ChatsContext);
 
 
   return {
     threads: state.threads,
+    activeThread: state.activeThread,
     setThreads,
     updateThreads,
+    setActiveThread,
   };
 };

@@ -81,10 +81,7 @@ export const inferenceMessage = createTable("inferenceMessage", {
   }).default(sql`NULL`),
   content: jsonb("content").$type<{
     message: string;
-    jupyterData: null | {
-
-    }
-    imageId: string;
+    imageId?: string;
   }>().notNull(),
 })
 
@@ -103,9 +100,9 @@ export const userMessages = createTable("userMessages", {
   threadId: integer("threadId").notNull().references(() => thread.id),
   type: varchar("type", { length: 255 }).notNull(),
   content: jsonb("content").$type<{
-    message: string;
-    imageId: string | null;
-    documentId: string | null;
+    message?: string | null;
+    imageId?: string | null;
+    documentId?: string | null;
   }>().notNull(),
 })
 

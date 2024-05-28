@@ -4,7 +4,7 @@ import {thread} from "@/server/db/schema";
 
 export const threadRouter = createTRPCRouter({
   getThread: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       return ctx.db.query.thread.findFirst({

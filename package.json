@@ -13,6 +13,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.17",
     "@auth/drizzle-adapter": "^1.1.0",
     "@hookform/resolvers": "^3.4.2",
     "@radix-ui/react-checkbox": "^1.0.4",
@@ -31,6 +32,7 @@
     "@trpc/client": "next",
     "@trpc/react-query": "next",
     "@trpc/server": "next",
+    "ai": "^3.1.16",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.30.10",
@@ -43,6 +45,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.5",
+    "react-markdown": "^9.0.1",
     "react-resizable-panels": "^2.0.19",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.3.0",

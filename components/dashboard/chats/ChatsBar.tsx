@@ -10,7 +10,7 @@ type userThread = typeof thread.$inferSelect
 
 export default function ChatsBar() {
 
-  const { state, updateThreads, createThread } = React.useContext(ChatsContext);
+  const { state, updateThreads, createThread, setActiveThread } = React.useContext(ChatsContext);
 
   return (
     <div className="h-full w-full border-e-border">
@@ -28,8 +28,12 @@ export default function ChatsBar() {
       </div>
       <Separator/>
       {state.threads?.map((thread) => (
-        <div key={thread.id} className="p-[.5rem] border-b border-border">
-          <h3>{thread.name}</h3>
+        <div key={thread.id} className="p-[.5rem] border-b border-border" onClick={() => {
+          setActiveThread(thread)
+        }}>
+          <h3>
+            {thread.name}
+          </h3>
           {thread.createdAt && (
             <p className="text-xs">{new Date(thread.createdAt).toLocaleDateString()}</p>
           )}
