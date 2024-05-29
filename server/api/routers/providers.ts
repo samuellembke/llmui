@@ -13,7 +13,7 @@ export const providersRouter = createTRPCRouter({
   createProvider: protectedProcedure.input(z.object({ providerName: z.string().min(1), accountName: z.string().min(1) })).mutation(async ({ ctx, input }) => {
     // Check if the accountName for the provider already exists
     const existingProvider = await ctx.db.query.inferenceProvider.findFirst({
-      where: (provider, {eq, and}) => and(eq(provider.accountName, input.accountName), eq(provider.providerName, input.providerName)),
+      where: (provider, {eq, and}) => and(eq(provider.accountName, input.accountName), eq(provider.providerName, input.providerName), eq(provider.userId, ctx.session.user.id)),
     });
 
     if (existingProvider) {
