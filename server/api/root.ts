@@ -6,6 +6,7 @@ import {
   createTRPCRouter
 } from "@/server/api/trpc";
 import {providersRouter} from "@/server/api/routers/providers";
+import {sourcesRouter} from "@/server/api/routers/sources";
 
 
 /**
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   threads: threadRouter,
   messages: messageRouter,
   providers: providersRouter,
+  sources: sourcesRouter
 });
 
 // export type definition of API

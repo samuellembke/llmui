@@ -47,17 +47,19 @@ export default function Sidebar({currentPath}: {currentPath: string}) {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden rounded-lg"
-              aria-label="Models"
-            >
-              <Bot className="size-5"/>
-            </Button>
+            <Link href="/assistants">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`rounded-lg ${currentPath === "/assistants" ? 'bg-muted' : ''}`}
+                aria-label="Assistants"
+              >
+                <Bot className="size-5"/>
+              </Button>
+            </Link>
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={5}>
-            Models
+            Assistants
           </TooltipContent>
         </Tooltip>
         <Tooltip>

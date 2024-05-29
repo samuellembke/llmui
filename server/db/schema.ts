@@ -25,6 +25,18 @@ export const inferenceProviderRelations = relations(inferenceProvider, ({ one, m
   user: one(users, { fields: [inferenceProvider.userId], references: [users.id] }),
   inferenceProviderCredentials: many(inferenceProviderCredentials),
   inferenceSource: many(inferenceSource),
+  userProviderSettings: many(userProviderSettings),
+}));
+
+export const userProviderSettings = createTable("userProviderSettings", {
+  id: serial("id").primaryKey(),
+  userId: varchar("userId", { length: 255 }).notNull().unique().references(() => users.id),
+  providerId: integer("providerId").notNull().unique().references(() => inferenceProvider.id),
+})
+
+export const userProviderSettingsRelations = relations(userProviderSettings, ({ one }) => ({
+  user: one(users, { fields: [userProviderSettings.userId], references: [users.id] }),
+  inferenceProvider: one(inferenceProvider, { fields: [userProviderSettings.providerId], references: [inferenceProvider.id] }),
 }));
 
 export const inferenceProviderCredentials = createTable("inferenceProviderCredentials", {
@@ -41,6 +53,7 @@ export const inferenceProviderCredentialsRelations = relations(inferenceProvider
 export const inferenceSource = createTable("inferenceSource", {
   id: serial("id").primaryKey(),
   providerId: integer("providerId").notNull().references(() => inferenceProvider.id),
+  userId: varchar("userId", { length: 255 }).notNull().references(() => users.id),
   type: varchar("type", { length: 255 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
 })
@@ -48,6 +61,7 @@ export const inferenceSource = createTable("inferenceSource", {
 export const inferenceSourceRelations = relations(inferenceSource, ({ one, many }) => ({
   inferenceProvider: one(inferenceProvider, { fields: [inferenceSource.providerId], references: [inferenceProvider.id] }),
   inferenceMessages: many(inferenceMessage),
+  user: one(users, { fields: [inferenceSource.userId], references: [users.id] }),
 }));
 
 export const thread = createTable("threads", {
@@ -127,6 +141,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   inferenceProviders: many(inferenceProvider),
   threads: many(thread),
   userMessages: many(userMessages),
+  userProviderSettings: many(userProviderSettings),
+  inferenceSources: many(inferenceSource),
 }));
 
 export const accounts = createTable(

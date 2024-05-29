@@ -7,6 +7,7 @@ import {TRPCReactProvider} from "@/trpc/react";
 import {TooltipProvider} from "@/components/ui/tooltip";
 import {Toaster} from "@/components/ui/sonner";
 import ProvidersProvider from "@/components/dashboard/providers/ProvidersProvider";
+import SourceProvider from "@/components/dashboard/inferenceSource/SourceProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -32,7 +33,9 @@ export default function RootLayout({
       <TRPCReactProvider>
         <TooltipProvider>
           <ProvidersProvider>
-            {children}
+            <SourceProvider>
+              {children}
+            </SourceProvider>
           </ProvidersProvider>
         </TooltipProvider>
       </TRPCReactProvider>

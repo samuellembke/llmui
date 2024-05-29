@@ -196,7 +196,7 @@ export function DeleteProvider({onConfirm}: {onConfirm: () => void}){
 }
 
 export default function ProviderSettings() {
-  const {providers, activeProvider, setActiveProvider, createProvider, refetchProviders} = useProviders()
+  const {providers, activeProvider, setActiveProvider, createProvider, refetchProviders, selectedProvider, setSelectProvider} = useProviders()
 
   const providerCredentialsQuery = api.providers.getProviderCredentials.useQuery({
     id: activeProvider?.id ?? 0
@@ -246,11 +246,18 @@ export default function ProviderSettings() {
             <Separator className="my-[1rem]" />
           )}
           <div className="flex flex-row justify-between items-center">
-            <CreateOrUpdateCredential onCredentialSave={onCredentialSave}>
-              <Button>
-                Add Credential
+            <div className="flex flex-row justify-center items-center gap-[1rem]">
+              <Button disabled={activeProvider?.id === selectedProvider?.id} onClick={() => {
+                setSelectProvider(activeProvider)
+              }}>
+                Use Provider
               </Button>
-            </CreateOrUpdateCredential>
+              <CreateOrUpdateCredential onCredentialSave={onCredentialSave}>
+                <Button>
+                  Add Credential
+                </Button>
+              </CreateOrUpdateCredential>
+            </div>
             <DeleteProvider onConfirm={onDeleteProvider}/>
           </div>
         </>

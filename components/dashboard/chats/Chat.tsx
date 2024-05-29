@@ -10,6 +10,7 @@ import Markdown from "react-markdown";
 import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
 import {useProviders} from "@/components/dashboard/providers/ProvidersProvider";
+import {useSources} from "@/components/dashboard/inferenceSource/SourceProvider";
 
 type userThread = typeof thread.$inferSelect
 type userMessage = typeof userMessages.$inferSelect
@@ -51,9 +52,11 @@ function InferenceMessage({content}: { content: string }) {
 
 
 export default function Chat() {
-  const { activeProvider } = useProviders()
+  const { selectedProvider } = useProviders()
+  const { selectedSource } = useSources()
+
   const providerCredentialsQuery = api.providers.getProviderCredentials.useQuery({
-    id: activeProvider?.id ?? 0
+    id: selectedProvider?.id ?? 0
   })
   const openAiKey = providerCredentialsQuery.data?.find((credential) => credential.credentialKey === "OPENAI_API_KEY")?.credentialValue ?? "";
   const [streaming, setStreaming] = React.useState(false)
@@ -143,7 +146,7 @@ export default function Chat() {
         console.log(`Saving message for thread ${activeThread!.id}`)
         sendInferenceMessage.mutate({
           threadId: activeThread!.id,
-          sourceId: 2,
+          sourceId: selectedSource?.id ?? -1,
           type: "text",
           finishedStreaming: new Date(),
           content: {
@@ -210,12 +213,12 @@ export default function Chat() {
 
   return (
     <div className="h-full max-h-full w-full bg-background flex flex-col justify-start items-start">
-      { !activeProvider && (
+      { !selectedProvider && (
         <p>
           Please select a provider
         </p>
       )}
-      { activeProvider && activeProvider && (
+      { selectedProvider && activeThread && selectedSource && (
         <>
           <div className="w-full h-full flex-grow flex flex-row justify-center items-stretch">
             <div className="w-full h-full relative">

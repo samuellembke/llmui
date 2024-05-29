@@ -1,6 +1,6 @@
 import {z} from "zod";
 import {createTRPCRouter, protectedProcedure,} from "@/server/api/trpc";
-import {inferenceProvider, inferenceProviderCredentials} from "@/server/db/schema";
+import {inferenceProvider, inferenceProviderCredentials, userProviderSettings} from "@/server/db/schema";
 import {eq} from "drizzle-orm";
 
 export const providersRouter = createTRPCRouter({
@@ -105,5 +105,49 @@ export const providersRouter = createTRPCRouter({
       credentialValue: input.credentialValue,
       inferenceProviderId: input.inferenceProviderId,
     }).returning();
+  }),
+  setUserProvider: protectedProcedure.input(z.object({
+    id: z.number()
+  })).mutation(async ({ ctx, input }) => {
+    const userId = ctx.session.user.id;
+    const provider = await ctx.db.query.inferenceProvider.findFirst({
+      where: (provider, {eq, and}) => and(eq(provider.userId, userId), eq(provider.id, input.id)),
+    });
+
+    if (!provider) {
+      throw new Error("Provider not found");
+    }
+
+    const providerSettings = await ctx.db.query.userProviderSettings.findFirst({
+      where: (settings, {eq}) => eq(settings.userId, userId),
+    });
+
+    console.log(provider, providerSettings)
+
+    return ctx.db.insert(userProviderSettings).values({
+      id: providerSettings?.id ?? undefined,
+      userId: userId,
+      providerId: provider.id,
+    }).onConflictDoUpdate({
+      target: userProviderSettings.id,
+      set: {
+        userId: userId,
+        providerId: provider.id,
+      }
+    }).returning();
+  }),
+  getUserProvider: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+    const providerSettings = await ctx.db.query.userProviderSettings.findFirst({
+      where: (settings, {eq}) => eq(settings.userId, userId),
+    });
+
+    if (!providerSettings) {
+      return null;
+    }
+
+    return ctx.db.query.inferenceProvider.findFirst({
+      where: (provider, {eq}) => eq(provider.id, providerSettings.providerId),
+    });
   })
 })
