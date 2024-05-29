@@ -5,6 +5,7 @@ import {
   createCallerFactory,
   createTRPCRouter
 } from "@/server/api/trpc";
+import {providersRouter} from "@/server/api/routers/providers";
 
 
 /**
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   threads: threadRouter,
   messages: messageRouter,
+  providers: providersRouter,
 });
 
 // export type definition of API

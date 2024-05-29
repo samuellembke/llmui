@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {TRPCReactProvider} from "@/trpc/react";
 import {TooltipProvider} from "@/components/ui/tooltip";
+import {Toaster} from "@/components/ui/sonner";
+import ProvidersProvider from "@/components/dashboard/providers/ProvidersProvider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -29,9 +31,12 @@ export default function RootLayout({
       )}>
       <TRPCReactProvider>
         <TooltipProvider>
-          {children}
+          <ProvidersProvider>
+            {children}
+          </ProvidersProvider>
         </TooltipProvider>
       </TRPCReactProvider>
+      <Toaster/>
       </body>
     </html>
   );

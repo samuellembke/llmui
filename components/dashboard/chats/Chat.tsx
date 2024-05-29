@@ -9,6 +9,7 @@ import {useChat} from "ai/react";
 import Markdown from "react-markdown";
 import {Textarea} from "@/components/ui/textarea";
 import {cn} from "@/lib/utils";
+import {useProviders} from "@/components/dashboard/providers/ProvidersProvider";
 
 type userThread = typeof thread.$inferSelect
 type userMessage = typeof userMessages.$inferSelect
@@ -50,6 +51,11 @@ function InferenceMessage({content}: { content: string }) {
 
 
 export default function Chat() {
+  const { activeProvider } = useProviders()
+  const providerCredentialsQuery = api.providers.getProviderCredentials.useQuery({
+    id: activeProvider?.id ?? 0
+  })
+  const openAiKey = providerCredentialsQuery.data?.find((credential) => credential.credentialKey === "OPENAI_API_KEY")?.credentialValue ?? "";
   const [streaming, setStreaming] = React.useState(false)
   const [autoScroll, setAutoScroll] = React.useState(true)
   const scrollRef = React.useRef<HTMLDivElement>(null)
@@ -117,6 +123,13 @@ export default function Chat() {
         id: "empty-"+Math.random(),
       }
     }),
+    body: {
+      provider: {
+        provider: "openai",
+        model: "gpt-4o",
+        apiKey: openAiKey,
+      }
+    },
     onResponse: (response) => {
       setStreaming(true)
       if (inputRef.current) {
@@ -139,7 +152,6 @@ export default function Chat() {
         })
       }
     },
-
     id: activeThread?.id+"" ?? "-1",
   });
   const sendUserMessage = api.messages.sendUserMessage.useMutation({
@@ -198,50 +210,62 @@ export default function Chat() {
 
   return (
     <div className="h-full max-h-full w-full bg-background flex flex-col justify-start items-start">
-      <div className="w-full h-full flex-grow flex flex-row justify-center items-stretch">
-        <div className="w-full h-full relative">
-          <div
-            className="absolute top-0 start-0 w-full h-full flex flex-row justify-center items-stretch overflow-auto" ref={scrollRef} onScroll={handleScroll}>
-            <div
-              className="w-full h-fit flex flex-col justify-start items-stretch gap-[2rem] p-[1rem] max-w-[48rem]" ref={scrollWrapperRef}>
-              {aiMessages.map((message, index) => {
-                return (
-                  <Fragment key={index}>
-                    {message.role === "user" && (
-                      <UserMessage content={message.content} />
-                    )}
-                    {message.role === "assistant" && (
-                      <InferenceMessage content={message.content} />
-                    )}
-                  </Fragment>
-                )
-              })}
-              <div className="h-0" ref={endScrollRef}></div>
+      { !activeProvider && (
+        <p>
+          Please select a provider
+        </p>
+      )}
+      { activeProvider && activeProvider && (
+        <>
+          <div className="w-full h-full flex-grow flex flex-row justify-center items-stretch">
+            <div className="w-full h-full relative">
+              <div
+                className="absolute top-0 start-0 w-full h-full flex flex-row justify-center items-stretch overflow-auto"
+                ref={scrollRef} onScroll={handleScroll}>
+                <div
+                  className="w-full h-fit flex flex-col justify-start items-stretch gap-[2rem] p-[1rem] max-w-[48rem]"
+                  ref={scrollWrapperRef}>
+                  {aiMessages.map((message, index) => {
+                    return (
+                      <Fragment key={index}>
+                        {message.role === "user" && (
+                          <UserMessage content={message.content}/>
+                        )}
+                        {message.role === "assistant" && (
+                          <InferenceMessage content={message.content}/>
+                        )}
+                      </Fragment>
+                    )
+                  })}
+                  <div className="h-0" ref={endScrollRef}></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div className={cn(`w-full px-[1rem] py-[2rem]`, `${activeThread?.id != null ? '' : 'hidden'}`)}>
-        <form onSubmit={(e) => {
-          sendUserMessage.mutate({
-            threadId: activeThread!.id,
-            content: {
-              message: input,
-            },
-            type: "text",
-          })
-          handleSubmit(e)
-        }}>
-          <Textarea ref={inputRef} disabled={streaming} placeholder="Type a message" className="w-full resize-none" value={input} onChange={handleInputChange} onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              console.log("Submitting", e)
-              // @ts-ignore
-              e.target.parentElement?.requestSubmit()
-              setStreaming(true)
-            }
-          }}/>
-        </form>
-      </div>
+          <div className={cn(`w-full px-[1rem] py-[2rem]`, `${activeThread?.id != null ? '' : 'hidden'}`)}>
+            <form onSubmit={(e) => {
+              sendUserMessage.mutate({
+                threadId: activeThread!.id,
+                content: {
+                  message: input,
+                },
+                type: "text",
+              })
+              handleSubmit(e)
+            }}>
+              <Textarea ref={inputRef} disabled={streaming} placeholder="Type a message" className="w-full resize-none"
+                        value={input} onChange={handleInputChange} onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  console.log("Submitting", e)
+                  // @ts-ignore
+                  e.target.parentElement?.requestSubmit()
+                  setStreaming(true)
+                }
+              }}/>
+            </form>
+          </div>
+        </>
+      )}
     </div>
   )
 }

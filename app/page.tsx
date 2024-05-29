@@ -1,4 +1,4 @@
-import { getServerAuthSession } from "@/server/auth";
+import {getServerAuthSession} from "@/server/auth";
 import {redirect} from "next/navigation";
 import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from "@/components/ui/resizable";
 import TopMenu from "@/components/dashboard/TopMenu";
@@ -9,6 +9,7 @@ import ChatsProviderWrapper from "@/components/dashboard/chats/ChatsProviderWrap
 import ChatsBar from "@/components/dashboard/chats/ChatsBar";
 import Chat from "@/components/dashboard/chats/Chat";
 import MessageProvider from "@/components/dashboard/chats/MessageProvider";
+import ProvidersProvider from "@/components/dashboard/providers/ProvidersProvider";
 
 export default async function Home() {
   const session = await getServerAuthSession();
@@ -19,7 +20,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-row justify-start items-stretch">
-      <Sidebar />
+      <Sidebar currentPath="/"/>
       <div className="w-full flex flex-col justify-start items-stretch">
         <ChatsProviderWrapper>
           <MessageProvider>
@@ -30,11 +31,11 @@ export default async function Home() {
                 className="w-full border-border border-[.0625rem] rounded-md flex-grow"
               >
                 <ResizablePanel defaultSize={14} maxSize={20} minSize={12}>
-                  <ChatsBar />
+                  <ChatsBar/>
                 </ResizablePanel>
                 <ResizableHandle withHandle={true}/>
                 <ResizablePanel defaultSize={70}>
-                  <Chat />
+                  <Chat/>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </div>
